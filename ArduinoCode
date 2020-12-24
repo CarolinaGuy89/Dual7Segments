@@ -1,0 +1,65 @@
+#define DATA 11      // connect to pin 14 on the 74HC595
+#define LATCH 8     // connect to pin 12 on the 74HC595
+#define CLOCK 12    // connect to pin 11 on the 74HC595
+
+const int COUNTUP = 5; //intent to define pin, Added 12.24.2020
+const int COUNTDOWN = 6; //intent to define pin, Added 12.24.2020
+const int COUNTRESET = 7; //intent to define pin, Added 12.24.2020
+
+
+// set up the array with the segments for 0 to 9, A to F (from Table 6-2)
+int data [] = {252, 96, 218, 242, 102, 182, 190, 224, 254, 246, 238, 62, 156, 122, 158, 142};
+void setup() {
+  pinMode(LATCH, OUTPUT);
+  pinMode(CLOCK, OUTPUT);
+  pinMode(DATA, OUTPUT);
+  pinMode(COUNTUP, INPUT); //intent to set pin as input, Added 12.24.2020
+  pinMode(COUNTDOWN, INPUT); //intent to set pin as input, Added 12.24.2020
+  pinMode(COUNTRESET, INPUT); //intent to set pin as input, Added 12.24.2020
+}
+
+int j = 0 // Shifted initlization out of loop, Added 12.24.2020
+void loop() {
+  boolean ButtonCountUp = digitalRead(COUNTUP);
+  boolean ButtonCountDown = digitalRead(COUNTDOWN);
+  boolean ButtonCountReset = digitalRead(COUNTRESET);
+  
+  	if (ButtonCountUp == High) {
+		j++;
+		displayNumber(j);
+		delay (200);
+    }
+  else if (ButtonCountDown == High) {
+		j--;
+  		displayNumber(j);
+		delay (200);
+	}
+  else if (ButtonCountReset == High) {
+    	j = 0;
+  		displayNumber(j);
+		delay (200);
+  	}
+//  int j;
+//  for ( j = 0 ; j < 100 ; j++ ) {
+//    displayNumber(j);
+//    delay(500);
+//  }
+}
+
+void displayNumber(int n) {
+  int left, right = 0;
+  if (n < 10) {
+    digitalWrite(LATCH, LOW);
+    shiftOut(DATA, CLOCK, LSBFIRST, data [n]);
+    shiftOut(DATA, CLOCK, LSBFIRST, 0);
+    digitalWrite(LATCH, HIGH);
+  }
+  else if (n >= 10) {
+    right = n % 10;   // remainder of dividing the number to display by 10
+    left = n / 10;  // quotient of dividing the number to display by 10
+    digitalWrite(LATCH, LOW);
+    shiftOut(DATA, CLOCK, LSBFIRST, data [right]);
+    shiftOut(DATA, CLOCK, LSBFIRST, data [left]);
+    digitalWrite(LATCH, HIGH);
+  }
+}
